@@ -1,0 +1,17 @@
+[Unit]
+Description=H31Proxy
+After=network.target multi-user.target
+RequiresMountsFor=/etc /usr
+
+[Service]
+ExecStart=/usr/local/h31/start-h31proxy.sh
+RuntimeDirectory=h31proxy
+RuntimeDirectoryMode=0755
+StandardOutput=journal
+StandardError=journal
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

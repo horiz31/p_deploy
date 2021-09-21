@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Configuration</title>
+    <meta charset="utf-8">
+    <link href="../base1/bootstrap.min.css" type="text/css" rel="stylesheet">
+    <script src="../base1/cockpit.js"></script>
+</head>
+<body>
+   <div class="pf-c-page">
+        <main class="pf-c-page__main" tabindex="-1">
+            <section class="pf-c-page__main-section pf-m-light">
+
+                <div class="col-sm-7">
+                    <p class="fw-bold fs-2 ms-3 mt-3">Video and Audio Settings</p>
+                   
+                    <table class="table caption-top table-borderless ms-3" id="the-table">
+                        <caption>Change the video and audio encoding settings below.</caption>
+                        <tr><td colspan="2"><p class="fw-bold fs-5 mt-3">Framing</p></td></tr>
+                        <tr>
+                            <td><label class="control-label" for="width">Frame Width and Height</label></td>
+                            <td><select id="widthAndHeight" ></select></td>
+                        </tr>                      
+                        <tr>
+                            <td><label class="control-label" for="fps">Frames Per Second</label></td>
+                            <td><select id="fps"></select></td>
+                        </tr>
+                        <tr><td colspan="2"><p class="fw-bold fs-5 mt-3">Mesh Radio Video Stream Encoding</p><p class="fw-light fs-6">This stream is used for video over the primary low-latency and high-bandwdith radio link. Typical bitrates are 1000-4000 kpbs. To disable the stream, select "Disabled" in the Bitrate drop down menu.</p></td></tr>
+                        <tr>
+                            <td><label class="control-label" for="losBitrate">Bitrate (kbps)</label></td>
+                            <td><select id="losBitrate"></select></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="losHost">Host</label></td>
+                            <td><input id="losHost"></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="losPort">Port</label></td>
+                            <td><input id="losPort" ></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="losIface">Interface</label></td>
+                            <td><select id="losIface"></select></td>
+                        </tr>
+                        <tr><td colspan="2"><p class="fw-bold fs-5 mt-3">ATAK Stream Encoding</p><p class="fw-light fs-6">This stream is used for video to the TAK network. These streams are typically used on small screens. Typical bitrates are 500-1000 kpbs. To disable the stream, select "Disabled" in the Bitrate drop down menu.</p></td></tr>
+                        <tr>
+                            <td><label class="control-label" for="atakBitrate">Bitrate (kbps)</label></td>
+                            <td><select id="atakBitrate"></select></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="atakHost">Host</label></td>
+                            <td><input id="atakHost"></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="atakPort">Port</label></td>
+                            <td><input id="atakPort" ></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="atakIface">Interface</label></td>
+                            <td><select id="atakIface"></select></td>
+                        </tr>                       
+                        <tr><td colspan="2"><p class="fw-bold fs-5 mt-3">Audio Stream Encoding</p><p class="fw-light fs-6">The audio encoding information can be changed below. Typical bitrate is 128 kbps. To disable the stream, select "Disabled" in the Bitrate drop down menu.</p></td></tr>
+                        <tr>
+                            <td><label class="control-label" for="audioBitrate">Bitrate (kbps)</label></td>
+                            <td><select id="audioBitrate"></select></td>
+                        </tr>
+                        <tr>
+                            <td><label class="control-label" for="audioPort">Port</label></td>
+                            <td><input id="audioPort"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><input hidden id="platform"></td>
+                        </tr>
+                        <tr>
+                            <td><button class="btn-primary" id="save">Save</button></td>
+                            <td><span id="result"></span></td>
+                        </tr>
+                    </table>
+                    <pre id="output"></pre>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script src="video.js"></script>
+</body>
+</html>
+

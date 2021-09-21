@@ -1,0 +1,11 @@
+{
+    "version": 0,
+
+    "menu": {
+        "video": {
+            "label": "Video Configuration",
+            "path": "video.html",
+            "order": 2
+        }
+    }
+}

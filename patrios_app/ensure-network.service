@@ -1,0 +1,20 @@
+[Unit]
+Description=Network Configuration
+After=systemd-remount-fs.service network.target
+RequiresMountsFor=/etc /usr
+
+[Service]
+Type=simple
+EnvironmentFile=/usr/local/h31/conf/network.conf
+ExecStart=/usr/local/h31/ensure-network.sh
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+RestartSec=10
+StartLimitInterval=100
+StartLimitBurst=5
+TimeoutStartSec=0
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target
