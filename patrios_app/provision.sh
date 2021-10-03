@@ -29,7 +29,7 @@ function address_of {
 }
 
 function value_of {
-	local result=$($SUDO grep $1 $CONF 2>/dev/null | cut -f2 -d=)
+	local result=$($SUDO grep -w $1 $CONF 2>/dev/null | cut -f2 -d=)
 	if [ -z "$result" ] ; then result=$2 ; fi
 	echo $result
 }
@@ -272,7 +272,7 @@ case "$(basename $CONF)" in
 	network.conf)
 		IFACE=$(value_of IFACE eth0)
 		HOST=$(value_of HOST $(address_of ${IFACE}))
-		GATEWAY=$(value_of GATEWAY 172.20.100.100)
+		GATEWAY=$(value_of GATEWAY 172.20.2.100)
 		NETMASK=$(value_of NETMASK 16)
 		if ! $DEFAULTS ; then
 			IFACE=$(interactive "$IFACE" "RJ45 Network Interface")
