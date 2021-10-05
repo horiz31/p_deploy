@@ -1,5 +1,6 @@
 const scriptLocation = "/usr/local/h31/"
 const confLocation = "/usr/local/h31/conf/"
+const version = document.getElementById("version");
 const losHost = document.getElementById("losHost");
 const losPort = document.getElementById("losPort");
 const losIface = document.getElementById("losIface");
@@ -26,6 +27,10 @@ document.getElementById("save").addEventListener("click", SaveSettings);
 // This attempts to read the conf file, if it exists, then it will parse it and fill out the table
 // if it fails then the values are loaded with defaults.
 function InitPage() {
+    cockpit.script(scriptLocation + "cockpitScript.sh -v")
+    .then((content) => version.innerHTML=content)
+    .catch(error => Fail(error));      
+    
     cockpit.file(confLocation + "mavproxy.conf")
         .read().then((content, tag) => SuccessReadFile(content))
             .catch(error => FailureReadFile(error));

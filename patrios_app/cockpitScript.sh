@@ -36,6 +36,10 @@ while [[ $# -gt 0 ]]; do
             nmcli con show attcell | grep gsm.apn | cut -d ":" -f2 | xargs
             exit 0
             ;;
+        -v)
+            cat /usr/local/h31/h31proxy/version.txt
+            exit 0
+            ;;
     esac
     exit 0
 done
