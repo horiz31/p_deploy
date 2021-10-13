@@ -29,7 +29,7 @@ function address_of {
 }
 
 function value_of {
-	local result=$($SUDO grep $1 $CONF 2>/dev/null | cut -f2 -d=)
+	local result=$($SUDO grep -w $1 $CONF 2>/dev/null | cut -f2 -d=)
 	if [ -z "$result" ] ; then result=$2 ; fi
 	echo $result
 }
