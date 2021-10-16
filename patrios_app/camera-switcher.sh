@@ -92,11 +92,11 @@ gst-client pipeline_play src3
 gst-client element_set stream1 switch listen-to cam1
 gst-client element_set atak atak_switch listen-to cam1
 
-#audio, pick the first H264 source
+#audio, pick the second H264 source (see tail -1)
 p=$(arecord -l | grep 'card.*device' | grep 'H264')
 if [[ -n $p ]] ; then
-        c=$(echo $p | cut -f1 -d, | cut -f1 -d: | cut -f2 -d' ')
-        d=$(echo $p | cut -f2 -d, | cut -f1 -d: | cut -f3 -d' ')
+        c=$(echo $p | tail -1 | cut -f1 -d, | cut -f1 -d: | cut -f2 -d' ')
+        d=$(echo $p | tail -1 | cut -f2 -d, | cut -f1 -d: | cut -f3 -d' ')
         gst-client pipeline_create mic alsasrc device="hw:${c},${d}" ! "audio/x-raw,format=(string)S16LE,rate=(int)44100,channels=(int)1" ! interpipesink name=mic
         gst-client pipeline_create audio_los interpipesrc listen-to=mic is-live=true block=true ! voaacenc bitrate=$audio_bps ! aacparse ! rtpmp4apay pt=96 ! udpsink sync=false host=${UDP_HOST} port=${AUDIO_PORT} ${extra_los}
         # start the audio pipeline
