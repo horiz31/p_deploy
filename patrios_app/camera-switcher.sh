@@ -1,5 +1,6 @@
 #!/bin/bash
-
+# Make this script stop if it encounters an error
+set -e 
 LOCAL=/usr/local
 ELP=${LOCAL}/src/ELP_H264_UVC/Linux_UVC_TestAP/
 FORMAT=I420
