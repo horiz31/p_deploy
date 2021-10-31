@@ -25,7 +25,7 @@ audio_bps=$(( $AUDIO_BITRATE * 1000 )) # audio bitrate
 gstd -f /var/run -l /dev/null -d /dev/null -k
 gstd -f /var/run -l /var/run/camera-switcher/gstd.log -d /var/run/camera-switcher/gst.log
 
-264encoder="omxh264enc bitrate=$bps iframeinterval=$GOP"
+h264encoder="omxh264enc bitrate=$bps iframeinterval=$GOP"
 parser="h264parse config-interval=1"
 payloader="rtph264pay config-interval=1 pt=96"
 xvideo="x-h264"
@@ -52,7 +52,7 @@ for c in 1 3 ; do
         echo "Warning: Camera ${c} not found"
         if [ -c /dev/cam${c} ] ; then pattern=spokes ; else pattern=solid-color ; fi
         if [ "${c}" == "1" ] ; then color=$RED ; else color=$BLU ; fi
-        gst-client pipeline_create src${c} videotestsrc is-live=true pattern=$pattern foreground-color=$color ! "video/x-raw,format=(string)$FORMAT,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! ${264encoder} ! "video/${xvideo},stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam${c}
+        gst-client pipeline_create src${c} videotestsrc is-live=true pattern=$pattern foreground-color=$color ! "video/x-raw,format=(string)$FORMAT,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! ${h264encoder} ! "video/${xvideo},stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam${c}
     fi
     # Front/Rear Camera Loop
 done
@@ -62,7 +62,7 @@ if [ -c /dev/cam2 ] ; then
     gst-client pipeline_create src2 v4l2src device=/dev/cam2 io-mode=mmap ! "video/x-raw,format=(string)${boson_format},width=(int)${boson_width},height=(int)${boson_height},framerate=(fraction)${boson_fps}/1" ! videorate max-rate=$FPS skip-to-first=true ! "video/x-raw,format=(string)${boson_format},width=(int)${boson_width},height=(int)${boson_height},framerate=(fraction)${FPS}/1" ! ${scaler} ! "video/x-raw,format=(string)$FORMAT,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! omxh264enc bitrate=2000000 iframeinterval=$GOP ! "video/${xvideo},stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam2
 else
     echo "Warning: Steam 2 (Thermal) camera not found"
-    gst-client pipeline_create src2 videotestsrc is-live=true pattern=solid-color foreground-color=$GRN ! "video/x-raw,format=(string)$FORMAT,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! ${264encoder} ! "video/${xvideo},stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam2
+    gst-client pipeline_create src2 videotestsrc is-live=true pattern=solid-color foreground-color=$GRN ! "video/x-raw,format=(string)$FORMAT,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! ${h264encoder} ! "video/${xvideo},stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam2
 fi
 
 # create the atak stream (264)
