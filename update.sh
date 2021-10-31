@@ -6,6 +6,10 @@ $SUDO systemctl stop mavproxy
 $SUDO systemctl disable mavproxy
 $SUDO rm /lib/systemd/system/mavproxy.service
 
+$SUDO systemctl stop audio-streamer
+$SUDO systemctl disable audio-streamer
+$SUDO rm /lib/systemd/system/audio-streamer.service
+
 rm -rf /usr/local/src/patrios/*.* Makefile
 
 cp -r patrios_app/. /usr/local/src/patrios/.
