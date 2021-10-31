@@ -1,6 +1,6 @@
 [Unit]
 Description=Video and Audio Stream Setup
-After=systemd-remount-fs.service network.target nss-lookup.target multi-user.target
+After=systemd-remount-fs.service network.target multi-user.target
 RequiresMountsFor=/etc /usr
 
 [Service]
