@@ -150,8 +150,7 @@ should return /dev/stream1 and /dev/stream3
 ```
 ls /dev/cam*
 ```
-should return /dev/cam2
-```
+should return /dev/cam2  
 
 5. The video system uses a relatively complicated gstreamer dameon, at this point you can try to run a simple script to verify video works. Stop the camera-switcher service and then run a simple gst-launch pipeline using /dev/stream1. The system has a udev rule to make 
 ```
