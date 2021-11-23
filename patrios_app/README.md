@@ -152,14 +152,15 @@ ls /dev/cam*
 ```
 should return /dev/cam2  
 
-5. The video system uses a relatively complicated gstreamer dameon, at this point you can try to run a simple script to verify video works. Stop the camera-switcher service and then run a simple gst-launch pipeline using /dev/stream1. The system has a udev rule to make 
+5. The video system uses a relatively complicated gstreamer dameon, at this point you can try to run a simple script to verify video works. Stop the camera-switcher service and then run a simple gst-launch pipeline using /dev/stream1.   
+
+Change the ip address 172.20.3.29 in the below command to match the actual ip address of the GCS you are streaming to  
+Within QGroundControl, change video settings to Unicast h.264, port 5600  
+Now run the commands below  
 ```
 sudo systemctl stop camera-switcher
 gst-launch-1.0 v4l2src device=/dev/stream1 ! "video/x-h264,width=1280,height=720,framerate=15/1" ! rtph264pay config-interval=1 pt=96 ! udpsink host=172.20.3.29 port=5600 multicast-iface=eth0 auto-multicast=true ttl=10
 ```
-Change the ip address 172.20.3.29 to match the actual ip address of the GCS you are streaming to  
-Within QGroundControl, change video settings to Unicast h.264, port 5600  
-
 6. Check QGCS Console for clues. Within QGCS, click top left icon > application settings > console. If you see repeating messages that the GCS is requesting the video endpoint, that just means the GCS is not receive the stream and trying again. Other messages may provide additional clues.
 
 7. Network issues - video is multicast and requires the radio system used to support multicast messaging. Although rare, we have seem some cases where a multicast route gets corrupted for an unknown reason on the Windows controllers. You can try to change the host LOS video address to a different IP address using the webUI. Also ensure the network interface on the GCS system is a "Private Network."
