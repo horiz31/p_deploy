@@ -100,6 +100,73 @@ The program to connect a multicast UDP port to the autopilot.  The program conne
 ### temperature
 A program to take temperature measurements and store them in **volatile** memory for diagnostic and development.  **(currently, the file must be manually downloaded over the network; subsequent releases may incorporate this into `h31proxy` to send temperature telementry to the GCS).**
 
+## Video System Troubleshooting
+
+If you are not getting a video feed on the GCS, follow these steps to help debug:
+
+1. Ensure there are no issues with the USB wiring, cameras, etc.
+```
+sudo apt-get install v4l-utils
+v4l2-ctl --list-devices
+```
+You should see at least 2 H.264 sources and one Boson source. If you don't see them all, check to make sure that you have all 3 USB cameras:
+```
+lsusb
+```
+You should see 3 devices which correspond to the attached cameras. Verify that you are not getting "usb disconnect" errors in the dmesg output
+```
+dmesg -w
+```
+any usb disconnect and reconnect is a sign that the wiring is faulty or the camera is fault. Replace and retry.
+
+2. Check the camera-switcher software
+```
+sudo systemctl status camera-swticher
+```
+this should show the service active:running. If not, start it using ```sudo systemctl start camera-switcher``` and investigate why it didn't start automatically.
+
+Try to restart the service and see if the stream starts
+```
+sudo systemctl restart camera-switcher
+```
+If a restart causes the stream to start on the GCS, this could indicate that a camera is faulty (normally you would see "usb disconnect" in the dmesg log as well) or it could indicate some kind of unique startup/race condition where the camera-switcher service started before the network was ready for streaming.
+
+3. Check the camera-switcher logs for any clues
+Look at the output of
+```
+sudo journalctl -u camera-swticher | grep "Warning"
+```
+and
+```
+sudo journalctl -u camera-swticher | grep "Bad"
+```
+if either of the commands above return results, investigate the source of those errors.
+
+4. Check udev rules. 
+```
+ls /dev/stream*
+```
+should return /dev/stream1 and /dev/stream3
+```
+ls /dev/cam*
+```
+should return /dev/cam2
+```
+
+5. The video system uses a relatively complicated gstreamer dameon, at this point you can try to run a simple script to verify video works. Stop the camera-switcher service and then run a simple gst-launch pipeline using /dev/stream1. The system has a udev rule to make 
+```
+sudo systemctl stop camera-switcher
+gst-launch-1.0 v4l2src device=/dev/stream1 ! "video/x-h264,width=1280,height=720,framerate=15/1" ! rtph264pay config-interval=1 pt=96 ! udpsink host=172.20.3.29 port=5600 multicast-iface=eth0 auto-multicast=true ttl=10
+```
+Change the ip address 172.20.3.29 to match the actual ip address of the GCS you are streaming to  
+Within QGroundControl, change video settings to Unicast h.264, port 5600  
+
+6. Check QGCS Console for clues. Within QGCS, click top left icon > application settings > console. If you see repeating messages that the GCS is requesting the video endpoint, that just means the GCS is not receive the stream and trying again. Other messages may provide additional clues.
+
+7. Network issues - video is multicast and requires the radio system used to support multicast messaging. Although rare, we have seem some cases where a multicast route gets corrupted for an unknown reason on the Windows controllers. You can try to change the host LOS video address to a different IP address using the webUI. Also ensure the network interface on the GCS system is a "Private Network."
+![image](https://user-images.githubusercontent.com/13543163/142952215-48a045f5-f8d4-4342-9468-972ab7c4544a.png)
+
+
 ## References
 * [mavlink camera api](https://mavlink.io/en/services/camera.html)
 * [RidgeRun Wiki](https://developer.ridgerun.com/wiki/index.php/Digital_Zoom,_Pan_and_Tilt_using_Gstreamer_Daemon)
