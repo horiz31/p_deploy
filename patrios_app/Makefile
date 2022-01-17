@@ -77,8 +77,12 @@ dependencies:
 	@PLATFORM=$(PLATFORM) ./ensure-gstd.sh $(DRY_RUN)
 	@PLATFORM=$(PLATFORM) ./ensure-camera-streamer.sh $(DRY_RUN)
 	@./ensure-cockpit.sh
-	@$(SUDO) apt-get install nano
-	@$(SUDO) apt-get install apt-offline
+	@$(SUDO) apt-get -y install nano
+	@$(SUDO) apt-get -y install apt-offline
+	# For updates
+	@$(SUDO) apt-get -y install curl
+	# TODO :: put this in ensure-script and run it eventually
+	@$(SUDO) curl -fLsS https://get.mender.io -o get-mender.sh
 
 disable:
 	# https://lunar.computer/posts/nvidia-jetson-nano-headless/
@@ -99,6 +103,8 @@ install: git-cache
 	@$(SUDO) cp -rf ui/general/* /usr/share/cockpit/general/
 	@$(SUDO) mkdir /usr/share/cockpit/video/
 	@$(SUDO) cp -rf ui/video/* /usr/share/cockpit/video/
+	@$(SUDO) mkdir /usr/share/cockpit/h31-update/
+	@$(SUDO) cp -rf ui/h31-update/* /usr/share/cockpit/h31-update/
 	@$(SUDO) cp -rf ui/branding-ubuntu/* /usr/share/cockpit/branding/ubuntu/
 	@$(SUDO) cp -rf ui/static/* /usr/share/cockpit/static/	
 	@$(SUDO) cp -rf ui/base1/* /usr/share/cockpit/base1/
