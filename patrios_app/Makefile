@@ -77,6 +77,8 @@ dependencies:
 	@PLATFORM=$(PLATFORM) ./ensure-gstd.sh $(DRY_RUN)
 	@PLATFORM=$(PLATFORM) ./ensure-camera-streamer.sh $(DRY_RUN)
 	@./ensure-cockpit.sh
+	@$(SUDO) apt-get install nano
+	@$(SUDO) apt-get install apt-offline
 
 disable:
 	# https://lunar.computer/posts/nvidia-jetson-nano-headless/

@@ -54,7 +54,7 @@ case "$USER" in
 		# 2) copy files to /usr/local/src/patrios
 		if [ ! -d /usr/local/src/patrios ] ; then
 			$SUDO mkdir -p /usr/local/src
-			$SUDO install -D -t /usr/local/src/patrios -o $NEWUSER -g $NEWGROUP *.* LICENSE Makefile
+			$SUDO cp -rf ./* /usr/local/src/patrios
 			$SUDO chown -R $NEWUSER:$NEWGROUP /usr/local/src/patrios
 		fi
 		# 3) create /usr/local/h31 if needed and make h31 user own it
