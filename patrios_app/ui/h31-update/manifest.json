@@ -1,0 +1,11 @@
+{
+    "version": 0,
+
+    "menu": {
+        "software-update": {
+            "label": "H31 Update",
+            "path": "h31-update.html",
+	    "content-security-policy": "default-src 'self'; connect-src 'self' wss:"
+        }
+    }
+}

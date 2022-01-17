@@ -1,0 +1,13 @@
+#the-box {
+    width: 350px;
+    height: 70px;
+    padding: 10px;
+    border: 1px solid #aaaaaa;
+}
+
+#output-box {
+    width: 700px;
+    height:400px;
+    padding: 50px;
+    border: 1px solid #aaaaaa;
+}
