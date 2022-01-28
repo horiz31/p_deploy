@@ -136,7 +136,7 @@ function CheckDisabled(disable){
 function SaveSettings() {
     var splitDims = widthAndHeight.value.split("x");
 
-    cockpit.file(confLocation + "video-stream.conf").replace("[Service]\n" + 
+    cockpit.file(confLocation + "video-stream.conf", { superuser : "try" }).replace("[Service]\n" + 
         "PLATFORM=" + platform.value + "\n" +
         "UDP_IFACE=" + losIface.value + "\n" +    
         "UDP_HOST=" + losHost.value + "\n" +
@@ -163,8 +163,8 @@ function SaveSettings() {
         .then(Success)
         .catch(error => Fail(new Error("Failure, settings NOT changed!")));
 
-    cockpit.spawn(["systemctl", "restart", "camera-switcher"]);
-    cockpit.spawn(["systemctl", "restart", "h31proxy"]);
+    cockpit.spawn(["systemctl", "restart", "camera-switcher"], { superuser : "try" });
+    cockpit.spawn(["systemctl", "restart", "h31proxy"], { superuser : "try" });
 }
 
 function Success() {

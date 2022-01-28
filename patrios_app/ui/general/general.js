@@ -117,11 +117,11 @@ function SaveSettings() {
         "ATAK_PERIOD=" + atakPeriod.value + "\n" +
         "SYSID=" + fmuId.value + "\n";
 
-    cockpit.file(confLocation + "mavproxy.conf").replace(fileString)
+    cockpit.file(confLocation + "mavproxy.conf", { superuser : "try" }).replace(fileString)
         .then(Success)
         .catch(Fail);
 
-    cockpit.spawn(["systemctl", "restart", "h31proxy"]);
+    cockpit.spawn(["systemctl", "restart", "h31proxy"], { superuser : "try" });
 }
 
 function Success() {
