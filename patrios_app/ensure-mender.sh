@@ -9,9 +9,9 @@ LOCAL=/usr/local
 SUDO=$(test ${EUID} -ne 0 && which sudo)
 DEVICE_TYPE="jetson-nano-emmc"
 
-$SDUO chmod +x scripts/get-mender.sh
+$SUDO chmod +x scripts/get-mender.sh
 # unfortunately we have to "setup" the service like this and disable the client
-$SUDO ./get-mender.sh -- \
+$SUDO ./scripts/get-mender.sh -- \
         --device-type $DEVICE_TYPE \
         --demo \
         --server-ip 127.0.0.1
