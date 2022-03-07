@@ -76,7 +76,7 @@ dependencies:
 	@PLATFORM=$(PLATFORM) ./ensure-gst.sh $(DRY_RUN)
 	@PLATFORM=$(PLATFORM) ./ensure-gstd.sh $(DRY_RUN)
 	@PLATFORM=$(PLATFORM) ./ensure-camera-streamer.sh $(DRY_RUN)
-	@./ensure-mender.sh
+	@$(SUDO) ./ensure-mender.sh
 	@./ensure-cockpit.sh
 	@$(SUDO) apt-get -y install nano
 	@$(SUDO) apt-get -y install apt-offline
