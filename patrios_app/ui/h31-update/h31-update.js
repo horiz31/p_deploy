@@ -7,22 +7,37 @@ document.getElementById("form").addEventListener("submit", InputHandler);
 // Set up the drop box
 document.getElementById("the-box").addEventListener("drop", DropHandler);
 document.getElementById("the-box").addEventListener("dragover", DragHandler);
+// Set up selection of file
+document.getElementById("file").onchange = InputHandler;
 
 function InputHandler(event){
     event.preventDefault();
+    pop();
     const file = document.getElementById("file").files[0];
     UploadFiles(file);
 }
 
 function DropHandler(event) {
-    // event.stopPropagation();
     event.preventDefault();
+    pop();
     const file = event.dataTransfer.files[0];
     UploadFiles(file);
 }
 
 function DragHandler(event) {
     event.preventDefault();
+}
+
+var modal = null;
+function pop() {
+    if(modal === null){
+        document.getElementById("popupBox").style.display = "block";
+        modal = true;
+    }
+    else{
+        document.getElementById("popupBox").style.display = "none";
+        modal = null;
+    }
 }
 
 function UploadFiles(file) {
@@ -87,8 +102,10 @@ function UploadFiles(file) {
     ws.onclose = function(ev) {
         console.log(ev);
         document.getElementById("form").reset();
+        pop();
         if (ev.code == 1000) {
             alert("Upload Successful");
+            document.getElementById("outputText").value += "Finished Upload. Starting Update..." + "\n";
         }
         Update(file.name);
     };
@@ -99,33 +116,45 @@ function sleep(ms) {
 }
 
 function Update(name) {
-    installProcess = cockpit.spawn(["mender", "--log-file", "/tmp/mender.log", "install", "/tmp/" + name], { superuser: "try" });
+    installProcess = cockpit.spawn(["mender", "-install", "/tmp/" + name], { superuser : "try" });
     installProcess.stream(outputData => {
-        document.getElementById("output-text").value += outputData;
-	console.log(outputData);
+        document.getElementById("outputText").value += "\n";
+        document.getElementById("outputText").value += outputData;
+        document.getElementById("outputText").value += "\n";
+        console.log(outputData);
     });
     // After
     installProcess.then(lastData => {
-        document.getElementById("output-text").value += lastData;
+        document.getElementById("outputText").value += "\n" + lastData.message + "\n";
         CommitFunc();
     });
     installProcess.catch(error => {
-        document.getElementById("output-text").value += error;
+        document.getElementById("outputText").value += "\n" + "Error While Updating : " + "\n";
+        document.getElementById("outputText").value += "Message : " + error.message + "\n";
+        document.getElementById("outputText").value += "Problem Code : " + error.problem + "\n";
+        document.getElementById("outputText").value += "Exit Status : " + error.exit_status + "\n";
+        document.getElementById("outputText").value += "Exit Signal : " + error.exit_signal + "\n";
     });
     
 }
 
 function CommitFunc() {
-    commitProcess = cockpit.spawn(["mender", "commit"], { superuser: "try" });
+    commitProcess = cockpit.spawn(["mender", "-commit"], { superuser : "try" });
     commitProcess.stream(outputData => {
-        document.getElementById("output-text").value += outputData;
+        document.getElementById("outputText").value += "\n";
+        document.getElementById("outputText").value += outputData;
+        document.getElementById("outputText").value += "\n";
     });
     commitProcess.then(lastData => {
-        document.getElementById("output-text").value += "Rebooting Now..."
+        document.getElementById("outputText").value += "\n" + "Rebooting Now..." + "\n"
         Reboot();
     });
     commitProcess.catch(error => {
-        document.getElementById("output-text").value += error;
+        document.getElementById("outputText").value += "\n" + "Error While Commiting : " + "\n";
+        document.getElementById("outputText").value += "Message : " + error.message + "\n";
+        document.getElementById("outputText").value += "Problem Code : " + error.problem + "\n";
+        document.getElementById("outputText").value += "Exit Status : " + error.exit_status + "\n";
+        document.getElementById("outputText").value += "Exit Signal : " + error.exit_signal + "\n";
     });
 }
 

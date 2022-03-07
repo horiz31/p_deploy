@@ -12,28 +12,25 @@
         <main class="pf-c-page__main" tabindex="-1">
             <section class="pf-c-page__main-section pf-m-light">
                 <p class="fw-bold fs-2 ms-3 mt-3">H31 Updates</p>
-                    <form class="pf-c-page__main-section pf-m-light" id="form">
-                        <table class="table caption-top table-borderless ms-3" id="the-table">
-                            <tr>
-                                <td><label for="file">Choose file to upload</label></td>
-                            </tr>
-                            <tr>
-                                <td><input type="file" id="file" name="file"></td>
-                            </tr>
-                            <tr>
-                                <td><progress hidden="true" id="fileprogress"></progress></td>
-                            </tr>
-                            <tr>
-                                <td><button>Upload</button></td>
-                            </tr>
-                        </table>
-                    </form>
-                    <label class="control-label">OR</label>
-                    <div id="the-box">Drop File</div>
-                    <br>
-                    <br>
-                    <p class="fw-bold fs-2 ms-3 mt-3">Update output</p>
-                    <div id="output-box"></div>
+                <form id="form">
+                    <div id="the-box">
+                        Drop File Here
+                        <input type="file" id="file" class="file_upload" >
+                    </div>
+                </form>
+                <br />
+                <div id="popupBox">
+                    <i class="fas fa-check-circle"></i>
+                    <h2>File Uploading In Progress</h2>
+                    <progress id="fileprogress"></progress>
+                    <br />
+                    <br />
+                </div>
+                <br />
+                <p class="fw-bold fs-2 ms-3 mt-3">Update output</p>
+                <div id="output-box">
+                    <textarea id="outputText"></textarea>
+                </div>
             </section>
         </main>
     </div>
