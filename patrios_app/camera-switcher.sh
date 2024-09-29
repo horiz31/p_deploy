@@ -47,17 +47,24 @@ for c in 1 3 ; do
         echo "Setting up stream ${c}"
         ${ELP}/H264_UVC_TestAP /dev/stream${c} --xuset-br $camera264bps
         ${ELP}/H264_UVC_TestAP /dev/stream${c} --xuset-gop $GOP
-        gst-client pipeline_create src${c} v4l2src device=/dev/stream${c} ! "video/x-h264,stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam${c}
+	gst-client pipeline_create src${c} v4l2src device=/dev/stream${c} ! "video/x-h264,stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam${c}
     # Either no camera or invalid FLAGS
+    elif [ -c /dev/cam${c} ] ; then 
+        echo "Setting up stream ${c} with cam"
+	    echo ${c}
+     	gst-client pipeline_create src${c} v4l2src device=/dev/cam${c} ! "image/jpeg, width=(int)$WIDTH,height=(int)$HEIGHT, framerate=(fraction)${FPS}/1" ! jpegdec ! omxh264enc bitrate=$bps ! "video/x-h264,stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam${c} 
     else
         echo "Warning: Camera ${c} not found"
         if [ -c /dev/cam${c} ] ; then pattern=spokes ; else pattern=solid-color ; fi
         if [ "${c}" == "1" ] ; then color=$RED ; else color=$BLU ; fi
         gst-client pipeline_create src${c} videotestsrc is-live=true pattern=$pattern foreground-color=$color ! "video/x-raw,format=(string)$FORMAT,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! ${h264encoder} ! "video/${xvideo},stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam${c}
     fi
-    # Front/Rear Camera Loop
+    #Front/Rear Camera Loop
 done
+
+
 # Thermal camera is raw only (so use /dev/cam2)
+
 if [ -c /dev/cam2 ] ; then
     echo "Setting up Stream 2 (Thermal)"
     gst-client pipeline_create src2 v4l2src device=/dev/cam2 io-mode=mmap ! "video/x-raw,format=(string)${boson_format},width=(int)${boson_width},height=(int)${boson_height},framerate=(fraction)${boson_fps}/1" ! videorate max-rate=$FPS skip-to-first=true ! "video/x-raw,format=(string)${boson_format},width=(int)${boson_width},height=(int)${boson_height},framerate=(fraction)${FPS}/1" ! ${scaler} ! "video/x-raw,format=(string)$FORMAT,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! omxh264enc bitrate=2000000 iframeinterval=$GOP ! "video/${xvideo},stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam2
@@ -66,11 +73,17 @@ else
     gst-client pipeline_create src2 videotestsrc is-live=true pattern=solid-color foreground-color=$GRN ! "video/x-raw,format=(string)$FORMAT,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! ${h264encoder} ! "video/${xvideo},stream-format=(string)byte-stream,width=(int)$WIDTH,height=(int)$HEIGHT,framerate=(fraction)${FPS}/1" ! interpipesink name=cam2
 fi
 
+
 # create the atak stream (264)
-gst-client pipeline_create atak interpipesrc name=atak_switch listen-to=cam1 ! h264parse ! omxh264dec disable-dpb=true ! queue ! omxh264enc bitrate=$atak_bps ! h264parse ! mpegtsmux ! rtpmp2tpay ! udpsink sync=false host=${ATAK_HOST} port=${ATAK_PORT} ${extra_atak}
+gst-client pipeline_create atak interpipesrc name=atak_switch listen-to=cam1 ! h264parse ! omxh264dec disable-dpb=true ! videoconvert ! nvvidconv name=cropper top=0 bottom=720 right=1200 left=0 ! capsfilter name=scale_filter caps="video/x-raw(memory:NVMM),width=(int)$WIDTH,height=(int)$HEIGHT" ! queue ! omxh264enc bitrate=$atak_bps ! h264parse ! mpegtsmux ! rtpmp2tpay ! udpsink sync=false host=${ATAK_HOST} port=${ATAK_PORT} ${extra_atak}
 
 # create the primary output pipeline (265)
-gst-client pipeline_create stream1 interpipesrc name=switch listen-to=cam1 block=true is-live=true allow-renegotiation=true stream-sync=compensate-ts ! h264parse ! omxh264dec disable-dpb=true ! queue ! omxh265enc bitrate=$bps ! rtph265pay config-interval=1 pt=96 ! udpsink sync=false host=${UDP_HOST} port=${UDP_PORT} ${extra_los}
+gst-client pipeline_create stream1 interpipesrc name=switch listen-to=cam1 block=true is-live=true allow-renegotiation=true stream-sync=compensate-ts ! h264parse ! omxh264dec disable-dpb=true ! videoconvert ! nvvidconv name=cropper top=0 bottom=720 right=1200 left=0 ! capsfilter name=scale_filter caps="video/x-raw(memory:NVMM),width=(int)$WIDTH,height=(int)$HEIGHT" ! queue ! omxh265enc bitrate=$bps ! rtph265pay config-interval=1 pt=96 ! udpsink sync=false host=${UDP_HOST} port=${UDP_PORT} ${extra_los}
+
+# start pipelines streaming
+gst-client pipeline_play src1
+gst-client pipeline_play src2
+gst-client pipeline_play src3
 
 # bug in interpipe requires RX to start first; or use stream-sync=2
 if [[ $VIDEO_BITRATE != "0" ]] ; then
@@ -85,20 +98,23 @@ else
         gst-client pipeline_stop atak
 fi
 
-# start pipelines streaming
-gst-client pipeline_play src1
-gst-client pipeline_play src2
-gst-client pipeline_play src3
+
 # NB: may need a gratuitous switch
 gst-client element_set stream1 switch listen-to cam1
 gst-client element_set atak atak_switch listen-to cam1
 
 #audio, pick the second H264 source (see tail -1)
-p=$(arecord -l | grep 'card.*device' | grep 'H264')
+#p=$(arecord -l | grep 'card.*device' | grep 'H264')
+p=$(arecord -l | grep 'card.*device' | grep 'RHP-415C')
 if [[ -n $p ]] ; then
         c=$(echo "$p" | tail -1 | cut -f1 -d, | cut -f1 -d: | cut -f2 -d' ')
         d=$(echo "$p" | tail -1 | cut -f2 -d, | cut -f1 -d: | cut -f3 -d' ')
-        gst-client pipeline_create mic alsasrc device="hw:${c},${d}" ! "audio/x-raw,format=(string)S16LE,rate=(int)44100,channels=(int)1" ! interpipesink name=mic
+ #       gst-client pipeline_create mic alsasrc device="hw:${c},${d}" ! "audio/x-raw,format=(string)S16LE,rate=(int)44100,channels=(int)1" ! interpipesink name=mic
+        gst-client pipeline_create mic alsasrc device="hw:2,0" ! "audio/x-raw,format=(string)S16LE,rate=(int)44100,channels=(int)2" ! interpipesink name=mic
+      #  gst-client pipeline_create mic alsasrc device="hw:2,0" ! "audio/x-raw,format=(string)S16LE,rate=(int)44100,channels=(int)1" ! interpipesink name=mic
+   
+	#gst-client pipeline_create audio_los interpipesrc listen-to=mic is-live=true block=true ! udpsink sync=false host=${UDP_HOST} port=${AUDIO_PORT} ${extra_los}
+  
         gst-client pipeline_create audio_los interpipesrc listen-to=mic is-live=true block=true ! voaacenc bitrate=$audio_bps ! aacparse ! rtpmp4apay pt=96 ! udpsink sync=false host=${UDP_HOST} port=${AUDIO_PORT} ${extra_los}
         # start the audio pipeline
         if [[ $AUDIO_BITRATE != "0" ]] ; then
@@ -113,5 +129,3 @@ if [[ -n $p ]] ; then
 else
         echo "No suitable H264 camera audio device found"
 fi
-
-

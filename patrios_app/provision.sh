@@ -167,9 +167,13 @@ case "$(basename $CONF)" in
 					if [ "$n" == "1" ] ; then   # 32e4:0001
 						echo "SUBSYSTEM==\"video4linux\", ATTRS{idVendor}==\"32e4\", ATTRS{idProduct}==\"0001\", ATTR{index}==\"0\", SYMLINK+=\"cam${n}\"" >> /tmp/$$.rule
 						echo "SUBSYSTEM==\"video4linux\", ATTRS{idVendor}==\"32e4\", ATTRS{idProduct}==\"0001\", ATTR{index}==\"1\", SYMLINK+=\"stream${n}\"" >> /tmp/$$.rule
+      						# Added for new cameras on MPU5
+	    					echo "SUBSYSTEM==\"video4linux\", ATTRS{idVendor}==\"1bcf\", ATTRS{idProduct}==\"0001\", ATTR{index}==\"0\", SYMLINK+=\"cam${n}\"" >> /tmp/$$.rule
 					elif [ "$n" == "3" ] ; then # 32e4:0002
 						echo "SUBSYSTEM==\"video4linux\", ATTRS{idVendor}==\"32e4\", ATTRS{idProduct}==\"0002\", ATTR{index}==\"0\", SYMLINK+=\"cam${n}\"" >> /tmp/$$.rule
 						echo "SUBSYSTEM==\"video4linux\", ATTRS{idVendor}==\"32e4\", ATTRS{idProduct}==\"0002\", ATTR{index}==\"1\", SYMLINK+=\"stream${n}\"" >> /tmp/$$.rule
+      						# Added for new cameras on MPU5
+	    					echo "SUBSYSTEM==\"video4linux\", ATTRS{idVendor}==\"1bcf\", ATTRS{idProduct}==\"0002\", ATTR{index}==\"0\", SYMLINK+=\"cam${n}\"" >> /tmp/$$.rule
 					else # n == 2, 09cb:4007
 						echo "SUBSYSTEM==\"video4linux\", ATTRS{idVendor}==\"09cb\", ATTRS{idProduct}==\"4007\", ATTR{index}==\"0\", SYMLINK+=\"cam${n}\"" >> /tmp/$$.rule
 						# NB: FLIR does not have an h.264 output endpoint
